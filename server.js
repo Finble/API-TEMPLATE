@@ -1,19 +1,12 @@
 var express = require('express');
+var bodyParser = require('body-parser'); // middleware
+
 var app = express();
 var PORT = process.env.PORT || 3000;
-var todos = [{ 
-    id: 1,
-    description: 'Meet mum for lunch',
-    completed: false // todo not yet done
-}, {
-    id: 2,
-    description: 'Go to market',
-    completed: false
-},  {
-    id: 3,
-    description: 'Feed the cat',
-    completed: true
-}];
+var todos = [];
+var todoNextId = 1; // a way to keep track of data stored locally, won't need when using a DB
+
+app.use(bodyParser.json()); // enables middleware to be set up - anytime a json request comes in, express is going to parse it, and we can access it via request.body 
 
 app.get('/', function (req, res) {
     res.send('Todo API Root');
@@ -45,6 +38,15 @@ app.get('/todos/:id', function (req, res) {
     } else {
         res.status(404).send();
     }
+});
+
+
+// POSTS can take data and store it in the array above
+
+app.post('/todos', function (req, res) {
+    var body = req.body;
+    console.log('description: ' + body.description);
+    res.json(body);
 });
 
 app.listen(PORT, function () {
