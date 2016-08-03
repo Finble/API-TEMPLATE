@@ -19,12 +19,27 @@ app.get('/', function (req, res) {
     res.send('Todo API Root');
 });
 
-// GET /todos  ==> to get collection / array of all items
-
 app.get('/todos', function (req, res) {
-   res.json(todos); 
+    res.json(todos); 
 });
 
+// GET /todos/:id ==> to get individual to do item
+
+app.get('/todos/:id', function (req, res) {
+    var todoId = parseInt(req.params.id, 10); // convert string to a number
+    var matchedTodo;
+    
+    todos.forEach(function (todo) {
+       if (todoId === todo.id) {
+           matchedTodo = todo;
+       } 
+    });
+    if (matchedTodo) {
+        res.json(matchedTodo);
+    } else {
+        res.status(404).send();
+    }
+});
 
 app.listen(PORT, function () {
     console.log('Express listening on port ' + PORT + '!');
