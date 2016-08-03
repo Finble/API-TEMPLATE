@@ -17,27 +17,10 @@ app.get('/todos', function (req, res) {
     res.json(todos); 
 });
 
-// underscore module has an automatice way of iterating through an array, using "where" - a list is searched until all values is found
-
-//_.where(listOfPlays, {author: "Shakespeare", year: 1611});
-//=> [{title: "Cymbeline", author: "Shakespeare", year: 1611},
-//    {title: "The Tempest", author: "Shakespeare", year: 1611}]
-
-// or can use findWhere, which finds one value:
-
-//_.findWhere(publicServicePulitzers, {newsroom: "The New York Times"});
-//=> {year: 1918, newsroom: "The New York Times"}
-
-
 app.get('/todos/:id', function (req, res) {
     var todoId = parseInt(req.params.id, 10); 
-    var matchedTodo = _.findWhere(todos,{id: todoId}); // replaces code below
+    var matchedTodo = _.findWhere(todos,{id: todoId}); 
     
-//    todos.forEach(function (todo) {
-//       if (todoId === todo.id) {
-//           matchedTodo = todo;
-//       } 
-//    });
     if (matchedTodo) {
         res.json(matchedTodo);
     } else {
@@ -45,9 +28,13 @@ app.get('/todos/:id', function (req, res) {
     }
 });
 
-
 app.post('/todos', function (req, res) {
     var body = req.body;
+    
+    // include validation
+    if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){ // if body completed is NOT a boolean or is NOT a string or if string is empty/bunch of spaces
+        return res.status(400); // 400 = request cannot be completed due to bad data, i.e. incompatible datatype
+    }
     
     body.id = todoNextId++;
     
