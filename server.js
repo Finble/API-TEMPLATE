@@ -23,7 +23,13 @@ app.get('/todos', function (req, res) {
     res.json(todos); 
 });
 
-// GET /todos/:id ==> to get individual to do item
+// GET /todos/:id ==> to get individual to do item - option 1:
+
+//app.get('/todos/:id', function (req, res) {
+//    res.send('Asking for todo with id of ' + req.params.id);
+//})
+
+// GET /todos/:id ==> to get individual to do item - option 2:
 
 app.get('/todos/:id', function (req, res) {
     var todoId = parseInt(req.params.id, 10); // convert string to a number
