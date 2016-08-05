@@ -29,13 +29,16 @@ app.get('/todos/:id', function (req, res) {
 });
 
 app.post('/todos', function (req, res) {
-    var body = req.body;
+    var body = _.pick(req.body, 'description', 'completed'); // use_.pick to only pick description and completed data
     
-    // include validation
-    if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){ // if body completed is NOT a boolean or is NOT a string or if string is empty/bunch of spaces
-        return res.status(400); // 400 = request cannot be completed due to bad data, i.e. incompatible datatype
+    if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){ 
+        return res.status(400); 
     }
     
+    // set body.description to be trimmed value, it removes wasted whitespace
+    
+    body.description = body.description.trim();
+   
     body.id = todoNextId++;
     
     todos.push(body);
