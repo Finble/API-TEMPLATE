@@ -16,18 +16,24 @@ app.get('/', function (req, res) {
 });
 
 // GET /todo?completed=true
+// FILTER ==> add a new query parameter, e.g. GET/todos?completed=true&q=work or GET/todos?completed=false&q=house
 
 app.get('/todos', function (req, res) {
-    var queryParams = req.query; // enables queries
+    var queryParams = req.query; 
     var filteredTodos = todos;
     
-    // if has property && completed === true, filteredTodo = _.where (filteredTodos, ?), else if has prop && completed if false
-    
     if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true'){
-        filteredTodos = _.where(filteredTodos, {completed: true}); // _.where takes original array and property, create new object to reflect property
+        filteredTodos = _.where(filteredTodos, {completed: true}); 
     } else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
         filteredTodos = _.where(filteredTodos, {completed: false});
     }
+    
+    // FILTER looks through whole array and returns selected value, e.g. "Go to work on a Saturday".indexOf('work') // returns -1 if it doesn't exist or position in string if it exists
+    
+    if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) // code will only run if q exists and it is a string (ie contains text)
+        filteredTodos = _.filter(filteredTodos, function (todo) {
+            return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;   // indexOf is only available on a string, not an object, so need todo.description.indexOf not todo.indexOf
+        })
     res.json(filteredTodos); 
 });
 
