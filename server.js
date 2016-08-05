@@ -29,13 +29,11 @@ app.get('/todos/:id', function (req, res) {
 });
 
 app.post('/todos', function (req, res) {
-    var body = _.pick(req.body, 'description', 'completed'); // use_.pick to only pick description and completed data
+    var body = _.pick(req.body, 'description', 'completed'); 
     
     if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){ 
         return res.status(400); 
     }
-    
-    // set body.description to be trimmed value, it removes wasted whitespace
     
     body.description = body.description.trim();
    
@@ -45,18 +43,56 @@ app.post('/todos', function (req, res) {
     res.json(body);
 });
 
-// add a DELETE request/route
-
-app.delete('/todos/:id', function (req, res) { // todo id to be deleted
+app.delete('/todos/:id', function (req, res) { 
     var todoId = parseInt(req.params.id, 10);
     var matchedTodo = _.findWhere(todos, {id: todoId});
     
     if(!matchedTodo) {
-        res.status(404).json({"error": "no todo found with that id"}); // instead of .send(); which sends back status but no message
+        res.status(404).json({"error": "no todo found with that id"}); 
     } else {
-        todos = _.without(todos, matchedTodo); // remove matched item from the todos array, globally set to empty array (see top of file)
-        res.json(matchedTodo); // send back the matched to do
+        todos = _.without(todos, matchedTodo); 
+        res.json(matchedTodo); 
     } 
+});
+
+// UPDATE or PUT route
+
+app.put('/todos/:d', function (req, res) {
+    var todoId = parseInt(req.params.id, 10);
+    var matchedTodo = _.findWhere(todos, {id: todoId});  // in todos array, find the new object set as having an id the same as the id input into url (saved as var todoId)
+    var body = _.pick(req.body, 'description', 'completed'); 
+    var validAttributes = {}; // will put all valid attributes into an array
+    
+    // can't find id, send error message
+
+    if (!matchedTodo) {
+        return res.status(404).send(); // return stops everything else running (should condition be met and return is actually run)
+    }
+    
+    // valid COMPLETED attribute
+
+    if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) { // property needs to include completed and that property must be a Boolean
+        validAttributes.completed = body.completed;
+    
+    // invalid COMPLETED attribute, as completed exists but not a Boolean - this goes after valid attribute, otherwise all completed, with or without Boolean, would be selected
+    
+    } else if (body.hasOwnProperty('completed')) {
+        return res.status(400).send();
+    } 
+    
+    // valid DESCRIPTION attribute
+
+    if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) { // only runs if body description exists and content is a string beyond 0 length
+        validAttributes.description = body.description;
+        
+    // invalid DESCRIPTION attribute, as description completed but value is not a string
+    } else if (body.hasOwnProperty('description')) {
+        return res.status(400).send();
+    }
+
+    matchedTodo = _.extend(matchedTodo, validAttributes); // same as matchedTodo = _.extend(matchedTodo, validAttributes);  extend = copies properties from one object to another, taking destination (where you want to put new data) and source (where you get data from), so we add validAttributes to override existing attributes in matchedToDo item
+    res.json(matchedTodo); // calls a good response (so you can see this in postman)
+
 });
     
 app.listen(PORT, function () {
