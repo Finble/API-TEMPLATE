@@ -15,8 +15,7 @@ app.get('/', function (req, res) {
     res.send('Todo API Root');
 });
 
-// GET /todo?completed=true
-// FILTER ==> add a new query parameter, e.g. GET/todos?completed=true&q=work or GET/todos?completed=false&q=house
+// GET + query + filters
 
 app.get('/todos', function (req, res) {
     var queryParams = req.query; 
@@ -28,11 +27,9 @@ app.get('/todos', function (req, res) {
         filteredTodos = _.where(filteredTodos, {completed: false});
     }
     
-    // FILTER looks through whole array and returns selected value, e.g. "Go to work on a Saturday".indexOf('work') // returns -1 if it doesn't exist or position in string if it exists
-    
-    if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) // code will only run if q exists and it is a string (ie contains text)
+    if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) 
         filteredTodos = _.filter(filteredTodos, function (todo) {
-            return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;   // indexOf is only available on a string, not an object, so need todo.description.indexOf not todo.indexOf
+            return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;   
         })
     res.json(filteredTodos); 
 });
