@@ -45,6 +45,20 @@ app.post('/todos', function (req, res) {
     res.json(body);
 });
 
+// add a DELETE request/route
+
+app.delete('/todos/:id', function (req, res) { // todo id to be deleted
+    var todoId = parseInt(req.params.id, 10);
+    var matchedTodo = _.findWhere(todos, {id: todoId});
+    
+    if(!matchedTodo) {
+        res.status(404).json({"error": "no todo found with that id"}); // instead of .send(); which sends back status but no message
+    } else {
+        todos = _.without(todos, matchedTodo); // remove matched item from the todos array, globally set to empty array (see top of file)
+        res.json(matchedTodo); // send back the matched to do
+    } 
+});
+    
 app.listen(PORT, function () {
     console.log('Express listening on port ' + PORT + '!');
 });
