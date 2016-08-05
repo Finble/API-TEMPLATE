@@ -55,44 +55,30 @@ app.delete('/todos/:id', function (req, res) {
     } 
 });
 
-// UPDATE or PUT route
+app.put('/todos/:id', function (req, res) {
+	var todoId = parseInt(req.params.id, 10);
+	var matchedTodo = _.findWhere(todos, {id: todoId});
+	var body = _.pick(req.body, 'description', 'completed');
+	var validAttributes = {};
 
-app.put('/todos/:d', function (req, res) {
-    var todoId = parseInt(req.params.id, 10);
-    var matchedTodo = _.findWhere(todos, {id: todoId});  // in todos array, find the new object set as having an id the same as the id input into url (saved as var todoId)
-    var body = _.pick(req.body, 'description', 'completed'); 
-    var validAttributes = {}; // will put all valid attributes into an array
-    
-    // can't find id, send error message
+	if (!matchedTodo) {
+		return res.status(404).send();
+	}
 
-    if (!matchedTodo) {
-        return res.status(404).send(); // return stops everything else running (should condition be met and return is actually run)
-    }
-    
-    // valid COMPLETED attribute
+	if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
+		validAttributes.completed = body.completed;
+	} else if (body.hasOwnProperty('completed')) {
+		return res.status(400).send();
+	}
 
-    if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) { // property needs to include completed and that property must be a Boolean
-        validAttributes.completed = body.completed;
-    
-    // invalid COMPLETED attribute, as completed exists but not a Boolean - this goes after valid attribute, otherwise all completed, with or without Boolean, would be selected
-    
-    } else if (body.hasOwnProperty('completed')) {
-        return res.status(400).send();
-    } 
-    
-    // valid DESCRIPTION attribute
+	if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
+		validAttributes.description = body.description;
+	} else if (body.hasOwnProperty('description')) {
+		return res.status(400).send();
+	}
 
-    if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) { // only runs if body description exists and content is a string beyond 0 length
-        validAttributes.description = body.description;
-        
-    // invalid DESCRIPTION attribute, as description completed but value is not a string
-    } else if (body.hasOwnProperty('description')) {
-        return res.status(400).send();
-    }
-
-    matchedTodo = _.extend(matchedTodo, validAttributes); // same as matchedTodo = _.extend(matchedTodo, validAttributes);  extend = copies properties from one object to another, taking destination (where you want to put new data) and source (where you get data from), so we add validAttributes to override existing attributes in matchedToDo item
-    res.json(matchedTodo); // calls a good response (so you can see this in postman)
-
+	_.extend(matchedTodo, validAttributes);
+	res.json(matchedTodo);
 });
     
 app.listen(PORT, function () {
