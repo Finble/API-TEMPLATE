@@ -1,10 +1,12 @@
+// THIS GOES IN DB.JS (IN ROOT) + pathname updated
+
 var Sequelize = require('sequelize');
 var sequelize = new Sequelize(undefined, undefined, undefined, { 
 	'dialect': "sqlite",
 	'storage': __dirname + '/basic-sqlite-database.sqlite' 
 });
 
-// define a model (data)
+// THIS GOES IN TODO.JS IN (NEW) MODELS FOLDER
 
 var Todo = sequelize.define('todo', {
 	description: {
@@ -21,7 +23,7 @@ var Todo = sequelize.define('todo', {
 	}
 });
 
-// add a new to do item via Todo.create
+// THIS GOES IN SERVER.JS, WRAPPED AROUND LISTEN PORT CODE
 
 sequelize.sync({
 	// force: true
