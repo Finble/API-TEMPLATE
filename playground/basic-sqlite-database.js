@@ -15,10 +15,22 @@ var Todo = sequelize.define('todo', {
 	}
 })
 
-// run node ./playground/basic-sqlite-database.js
-// output is individual SQL statements, that we would have had to write, but Sequelize did for us!
-// a new file has been created now in root, DELETE this file, so update line 4 (see above)
+// add a new to do item via Todo.create
 
-sequelize.sync().then(function() {
+sequelize.sync({force: true}).then(function() { // when add force: true to sync it drops all tables in DB and recreates them
 	console.log('Everything is synced');
+
+	Todo.create({
+		description: 'Walk my dog',
+		completed: false
+	}).then(function (todo) { // as above returns a promise, need this code
+		console.log('Finished!');
+		console.log(todo);
+	});
 });
+
+
+// run node ./playground/basic-sqlite-database.js
+// auto generated fields = id, updatedAt, createdAt + we required completed, description
+
+
