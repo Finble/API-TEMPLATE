@@ -39,15 +39,17 @@ sequelize.sync({
 			description: 'Clean office'
 		});
 	}).then(function(){
-		return Todo.findAll({ // finds all items
-			where: {  // further filtering once ALL items returned
-				completed: false
+		return Todo.findAll({  
+			where: {  
+				description: {
+					$like: '%office%' // enables search, %xx% means ignores what's either side, capitalisation irrelevant (any case can be searched)
+				}
 			}	
-	})
-	}).then(function(todos) { // change all todo to todos as now looking for ALL vs one item by ID
+		});
+	}).then(function(todos) { 
 		if (todos) {
 			todos.forEach(function(todos) {
-				console.log(todos.toJSON()); // reduces output from long object to items we care about
+				console.log(todos.toJSON()); 
 			});
 		} else {
 				console.log('no todos found!');
