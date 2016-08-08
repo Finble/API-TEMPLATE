@@ -5,20 +5,19 @@ var sequelize = new Sequelize(undefined, undefined, undefined, {
 });
 
 // define a model (data)
-// for validations, look at sequelize docs, models, validation
 
 var Todo = sequelize.define('todo', {
 	description: {
 		type: Sequelize.STRING,
-		allowNull: false, // adding validation, must complete description
+		allowNull: false, 
 		validate: {
-			len: [1, 250]// only takes strings with length of 1 or greater than 1, not more than 250 characters
+			len: [1, 250]
 		}
 	},
 	completed: {
 		type: Sequelize.BOOLEAN,
-		allowNull: false, // adding validation, must complete completed
-		defaultValue: false // adding validation, if someone doesn't complete a completed status (as not required by user), code will set to false
+		allowNull: false, 
+		defaultValue: false 
 	}
 });
 
@@ -31,10 +30,22 @@ sequelize.sync({
 
 	Todo.create({
 		description: 'Take out trash',  
-		// completed: false // testing this not input, program returns long object, but no error, as we set a defaultValue of false if no input (line 21)
+		// can remove 'completed' as set a defaultValue of false 
 	}).then(function (todo) { 
-		console.log('Finished!');
-		console.log(todo);
+
+	// can add new items here: // would not call .then this many times in real life!
+
+		return Todo.create({
+			description: 'Clean office'
+		});
+	}).then(function(){
+			return Todo.findById(1) // returns 'Take out trash', (2) returns 'Clean office', (3) returns 'no todo found'
+	}).then(function(todo) {
+		if (todo) {
+			console.log(todo.toJSON()); // reduces output from long object to items we care about
+		} else {
+			console.log('no todo found!');
+		}
 	}).catch(function(e){  
 		console.log(e);
 	})
