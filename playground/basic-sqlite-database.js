@@ -39,12 +39,18 @@ sequelize.sync({
 			description: 'Clean office'
 		});
 	}).then(function(){
-			return Todo.findById(1) // returns 'Take out trash', (2) returns 'Clean office', (3) returns 'no todo found'
-	}).then(function(todo) {
-		if (todo) {
-			console.log(todo.toJSON()); // reduces output from long object to items we care about
+		return Todo.findAll({ // finds all items
+			where: {  // further filtering once ALL items returned
+				completed: false
+			}	
+	})
+	}).then(function(todos) { // change all todo to todos as now looking for ALL vs one item by ID
+		if (todos) {
+			todos.forEach(function(todos) {
+				console.log(todos.toJSON()); // reduces output from long object to items we care about
+			});
 		} else {
-			console.log('no todo found!');
+				console.log('no todos found!');
 		}
 	}).catch(function(e){  
 		console.log(e);
