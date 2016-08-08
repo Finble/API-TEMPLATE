@@ -40,6 +40,8 @@ sequelize.sync({
 		}
 	});
 
+// THIS GOES TO POST/ TODOS
+
 	// Todo.create({
 	// 	description: 'Take out trash',  
 	// 	// can remove 'completed' as set a defaultValue of false 
@@ -50,6 +52,9 @@ sequelize.sync({
 	// 	return Todo.create({
 	// 		description: 'Clean office'
 	// 	});
+
+// THIS GOES TO GET/ TODOS
+
 	// }).then(function(){
 	// 	return Todo.findAll({  
 	// 		where: {  
@@ -58,6 +63,9 @@ sequelize.sync({
 	// 			}
 	// 		}	
 	// 	});
+
+// THIS GOES TO GET/ TODOS/:ID
+
 	// }).then(function(todos) { 
 	// 	if (todos) {
 	// 		todos.forEach(function(todos) {
