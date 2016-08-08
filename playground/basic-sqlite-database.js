@@ -30,12 +30,12 @@ sequelize.sync({
 	console.log('Everything is synced');
 
 	Todo.create({
-		// description: 'Walk my dog',  // taking out this throws error in terminal (now we have validations above)
-		completed: false
+		description: 'Take out trash',  
+		// completed: false // testing this not input, program returns long object, but no error, as we set a defaultValue of false if no input (line 21)
 	}).then(function (todo) { 
 		console.log('Finished!');
 		console.log(todo);
-	}).catch(function(e){  // can catch error and log out what is wrong (vs terminal throwing up error), by including catch function
+	}).catch(function(e){  
 		console.log(e);
 	})
 });
