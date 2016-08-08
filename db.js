@@ -6,7 +6,7 @@ var sequelize = new Sequelize(undefined, undefined, undefined, {
 
 var db = {};
 
-db.todo = sequelize.import(__dirname + '/modules/todo.js');
+db.todo = sequelize.import(__dirname + '/models/todo.js');  // NOTE models NOT modules!
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

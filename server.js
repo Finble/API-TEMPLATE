@@ -1,7 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
-var db = require('./db.js');  // add in so that db can be accessed
+var db = require('./db.js'); // add in so that db can be accessed
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -16,7 +16,7 @@ app.get('/', function(req, res) {
     res.send('Todo API Root');
 });
 
-// GET + query + filters
+// GET/todos + query + filters
 
 app.get('/todos', function(req, res) {
     var queryParams = req.query;
@@ -54,24 +54,34 @@ app.get('/todos/:id', function(req, res) {
     }
 });
 
-// POST
+// POST/todos ADD DB
+// TO CHECK WORKING, RUNING NODE SERVER.JS IN TERMINAL, SHOULD OPEN UP PORT
+// OPEN POSTMAN + CREATE NEW TODOS VIA POST ROUTE (UPDATE BODY + SEND X2,3,4...)
+// TERMINAL PORT WILL UPDATE WITH NEW ENTRIES TOO
+// OPEN UP SQLITE BROWSER TO CHECK ENTRIES THERE TOO
 
 app.post('/todos', function(req, res) {
     var body = _.pick(req.body, 'description', 'completed');
-
-    if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-        return res.status(400);
-    }
-
-    body.description = body.description.trim();
-
-    body.id = todoNextId++;
-
-    todos.push(body);
-    res.json(body);
+    
+    db.todo.create(body).then(function(todo) {
+        res.json(todo.toJSON()); // todo object in sequelize needs to be JSONed again!
+    }, function(e) {
+        res.status(400).json(e);
+    });
 });
+//     if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+//         return res.status(400);
+//     }
 
-// DELETE
+//     body.description = body.description.trim();
+
+//     body.id = todoNextId++;
+
+//     todos.push(body);
+//     res.json(body);
+// });
+
+// DELETE/todos/:id
 
 app.delete('/todos/:id', function(req, res) {
     var todoId = parseInt(req.params.id, 10);
@@ -89,7 +99,7 @@ app.delete('/todos/:id', function(req, res) {
     }
 });
 
-// UPDATE/PUT
+// UPDATE/PUT/todos/:id
 
 app.put('/todos/:id', function(req, res) {
     var todoId = parseInt(req.params.id, 10);
@@ -124,8 +134,5 @@ app.put('/todos/:id', function(req, res) {
 db.sequelize.sync().then(function() {
     app.listen(PORT, function() {
         console.log('Express listening on port ' + PORT + '!');
+    });
 });
-});
-
-
-
