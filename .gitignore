@@ -1,2 +1,2 @@
 node_modules/
-data/*.sqlite // ignores any files with sqlite extension
+data/*.sqlite 

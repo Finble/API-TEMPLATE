@@ -38,12 +38,12 @@ app.get('/todos', function(req, res) {
 
     db.todo.findAll({where: where}).then(function(todos){
         res.json(todos);
-    }, function(e) {
+    },  function(e) {
         res.status(500).send();
     })
 });
 
-// GET/todos/:id, ADDED DB
+// GET/todos/:id, ADDED DB (amended from API call to sequelize)
 
 app.get('/todos/:id', function(req, res) {
     var todoId = parseInt(req.params.id, 10);
@@ -54,24 +54,24 @@ app.get('/todos/:id', function(req, res) {
         } else {
             res.status(404).send();
         }
-    }, function(e) {
+    },  function(e) {
         res.status(500).send(); // 500 something went wrong server end
     });
 });
 
-// POST/todos, ADDED DB
+// POST/todos, ADDED DB (amended from API call to sequelize)
 
 app.post('/todos', function(req, res) {
     var body = _.pick(req.body, 'description', 'completed');
     
     db.todo.create(body).then(function(todo) {
         res.json(todo.toJSON()); // todo object in sequelize needs to be JSONed again!
-    }, function(e) {
+    },  function(e) {
         res.status(400).json(e);
     });
 });
 
-// DELETE/todos/:id
+// DELETE/todos/:id, ADDED DB (amended from API call to sequelize)
 
 app.delete('/todos/:id', function(req, res) {
     var todoId = parseInt(req.params.id, 10);
@@ -88,53 +88,42 @@ app.delete('/todos/:id', function(req, res) {
         } else {
             res.status(204).send();  // 204 everything went well + nothing to send back (vs 200 everything went well + sending a response back)
         }
-    }, function(){
+    },  function(){
         res.status(500).send();
     });
 });
 
-//     var matchedTodo = _.findWhere(todos, {
-//         id: todoId
-//     });
-
-//     if (!matchedTodo) {
-//         res.status(404).json({
-//             "error": "no todo found with that id"
-//         });
-//     } else {
-//         todos = _.without(todos, matchedTodo);
-//         res.json(matchedTodo);
-//     }
-// });
-
-// UPDATE/PUT/todos/:id
+// UPDATE/PUT/todos/:id, ADDED DB (amended from API call to sequelize)
 
 app.put('/todos/:id', function(req, res) {
     var todoId = parseInt(req.params.id, 10);
-    var matchedTodo = _.findWhere(todos, {
-        id: todoId
-    });
     var body = _.pick(req.body, 'description', 'completed');
-    var validAttributes = {};
 
-    if (!matchedTodo) {
-        return res.status(404).send();
+    // VALIDATION TO BE HANDLED IN MODELS/TODO.JS, SO CAN BE REMOVED FROM HERE
+
+    var attributes = {};
+
+    if (body.hasOwnProperty('completed')) {
+        attributes.completed = body.completed;
     }
 
-    if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-        validAttributes.completed = body.completed;
-    } else if (body.hasOwnProperty('completed')) {
-        return res.status(400).send();
-    }
+    if (body.hasOwnProperty('description')) {
+        attributes.description = body.description;
+    } 
 
-    if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
-        validAttributes.description = body.description;
-    } else if (body.hasOwnProperty('description')) {
-        return res.status(400).send();
-    }
-
-    _.extend(matchedTodo, validAttributes);
-    res.json(matchedTodo);
+    db.todo.findById(todoId).then(function(todo) {
+        if (todo) {
+            todo.update(attributes).then(function (todo) {
+            res.json(todo.toJSON());
+            },  function (e) {
+                res.status(400).json(e);
+            });
+        } else {
+            res.status(404).send();
+        }
+    },  function () {
+        res.status(500).send();
+    });
 });
 
 // SET UP SERVER INSIDE CALL TO SYNC DB

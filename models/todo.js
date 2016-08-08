@@ -14,3 +14,5 @@ module.exports = function(sequelize, DataTypes) {
 		}
 	});
 };
+
+// validation all extracted to the above model, so don't need to include in server.js code
