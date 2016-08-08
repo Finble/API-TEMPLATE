@@ -24,39 +24,49 @@ var Todo = sequelize.define('todo', {
 // add a new to do item via Todo.create
 
 sequelize.sync({
-	force: true
+	// force: true
 }).then(function() { 
 	console.log('Everything is synced');
 
-	Todo.create({
-		description: 'Take out trash',  
-		// can remove 'completed' as set a defaultValue of false 
-	}).then(function (todo) { 
+// fetches data already persisted to DB
 
-	// can add new items here: // would not call .then this many times in real life!
-
-		return Todo.create({
-			description: 'Clean office'
-		});
-	}).then(function(){
-		return Todo.findAll({  
-			where: {  
-				description: {
-					$like: '%office%' // enables search, %xx% means ignores what's either side, capitalisation irrelevant (any case can be searched)
-				}
-			}	
-		});
-	}).then(function(todos) { 
-		if (todos) {
-			todos.forEach(function(todos) {
-				console.log(todos.toJSON()); 
-			});
+	Todo.findById(3).then(function(todo) {
+		if (todo) {
+			console.log(todo.toJSON());
 		} else {
-				console.log('no todos found!');
+			console.log('Todo not found');
 		}
-	}).catch(function(e){  
-		console.log(e);
-	})
+	});
+
+	// Todo.create({
+	// 	description: 'Take out trash',  
+	// 	// can remove 'completed' as set a defaultValue of false 
+	// }).then(function (todo) { 
+
+	// // can add new items here: // would not call .then this many times in real life!
+
+	// 	return Todo.create({
+	// 		description: 'Clean office'
+	// 	});
+	// }).then(function(){
+	// 	return Todo.findAll({  
+	// 		where: {  
+	// 			description: {
+	// 				$like: '%office%' // enables search, %xx% means ignores what's either side, capitalisation irrelevant (any case can be searched)
+	// 			}
+	// 		}	
+	// 	});
+	// }).then(function(todos) { 
+	// 	if (todos) {
+	// 		todos.forEach(function(todos) {
+	// 			console.log(todos.toJSON()); 
+	// 		});
+	// 	} else {
+	// 			console.log('no todos found!');
+	// 	}
+	// }).catch(function(e){  
+	// 	console.log(e);
+	// })
 });
 
 
