@@ -129,20 +129,18 @@ app.put('/todos/:id', function(req, res) {
 // SET UP POST FOR USERS (a new table in DB)
 
 app.post('/users', function (req, res) {
-    var body = _.pick(req.body, 'email', 'password');  // filters all info from object, so returns info of interest only/passes only these attributes when creating a new user (user.create) 
+    var body = _.pick(req.body, 'email', 'password');  
     
-    db.user.create(body).then(function(user) {  // only uses attributes above (body, email, password)
-        res.json(user.toJSON()); // for success, return user object (in JSON)
+    db.user.create(body).then(function(user) {  
+        res.json(user.toJSON()); 
     },  function(e) {
-        res.status(400).json(e); // for failure, return error status
+        res.status(400).json(e); 
     });
 });
 
-// test on Postman, using dummy email + password, also send twice, as should return error on 2nd attempt, to show validations working + put in short password to return error too.
-
 // SET UP SERVER INSIDE CALL TO SYNC DB
 
-db.sequelize.sync().then(function() {
+db.sequelize.sync({force: true}).then(function() { // add {force: true}, will cause sequelize to rebuild DB (and will now add salt and hash fields), so use force:true everytime you want to update USER (or TODO, ie any DB model) definitions
     app.listen(PORT, function() {
         console.log('Express listening on port ' + PORT + '!');
     });
