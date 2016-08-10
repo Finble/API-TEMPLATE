@@ -132,7 +132,7 @@ app.post('/users', function (req, res) {
     var body = _.pick(req.body, 'email', 'password');  
     
     db.user.create(body).then(function(user) {  
-        res.json(user.toJSON()); 
+        res.json(user.toPublicJSON());  // added public so that hidden fields are not returned
     },  function(e) {
         res.status(400).json(e); 
     });
@@ -140,7 +140,7 @@ app.post('/users', function (req, res) {
 
 // SET UP SERVER INSIDE CALL TO SYNC DB
 
-db.sequelize.sync({force: true}).then(function() { // add {force: true}, will cause sequelize to rebuild DB (and will now add salt and hash fields), so use force:true everytime you want to update USER (or TODO, ie any DB model) definitions
+db.sequelize.sync().then(function() { // remove {force: true} when not needing to update fields/rebuild DB tables
     app.listen(PORT, function() {
         console.log('Express listening on port ' + PORT + '!');
     });

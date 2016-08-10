@@ -43,11 +43,14 @@ module.exports = function(sequelize, DataTypes) {
 					user.email = user.email.toLowerCase();
 				}
 			}
+	},
+	// to disguise the password value
+		instanceMethods: {
+			toPublicJSON: function () {
+				var json = this.toJSON();
+				return _.pick(json, 'id', 'email', 'createdAt', 'updatedAt');  // selecting items to be returned EXCLUDING password, salt + passwordhash
+			}
 		}
-
 	});
 };
 
-// when updating a model's definition, should update server.js db.sequelize.sync({force: true}), as force:true will drop and rebuild all tables, thus adding in new definitions (e.g. here salt, password_hash + password)
-// run node server.js + open sqlitebrowser to show new user table in DB with added fields
-// test in Postman (which should now show new fields when JSON data returned) + hashes returned
