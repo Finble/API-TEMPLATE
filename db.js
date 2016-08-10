@@ -1,8 +1,7 @@
 var Sequelize = require('sequelize');
-var env = process.env.NODE_ENV || 'development'; // ENV variables run depending on environment node being run in - Heroku sets env to production (production = postgres, if not product = sqlite) 
+var env = process.env.NODE_ENV || 'development'; 
 var sequelize;
 
-// set environment variables depending on whether in production (used by Heroku) or not
 if (env === 'production') {
 	sequelize = new Sequelize(process.env.DATABASE_URL, {
 		dialect: 'postgres'
@@ -16,8 +15,9 @@ if (env === 'production') {
 
 var db = {};
 
-db.todo = sequelize.import(__dirname + '/models/todo.js');  // NOTE models NOT modules!
+db.todo = sequelize.import(__dirname + '/models/todo.js');  
+db.user = sequelize.import(__dirname + '/models/user.js'); // to ensure user.js file is read
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-module.exports = db; // can only set module.exports to one thing, but by saving to an object, we can put lots of things in object!
+module.exports = db; 

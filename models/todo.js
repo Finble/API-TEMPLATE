@@ -1,3 +1,5 @@
+// this is ONE table in DB, need to set up routes (in server.js) for this table, ie 'todo'
+
 module.exports = function(sequelize, DataTypes) {
 	return sequelize.define('todo', {
 		description: {
