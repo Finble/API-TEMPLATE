@@ -4,20 +4,27 @@ module.exports = function(sequelize, DataTypes) {
 	return sequelize.define('user', {
 		email: {
 			type: DataTypes.STRING, 
-			allowNull: false, // need to complete
-			unique: true, // makes sure no other user records new email with same value for this email
+			allowNull: false, 
+			unique: true, 
 			validate: {
-				isEmail: true // sequelize checks this is an email (under hood validations)
+				isEmail: true 
 			}
 		},
 		password: {
 			type: DataTypes.STRING,
-			allowNull: false, // need to complete
+			allowNull: false, 
 			validate: {
-				len: [7, 100]  // ensures string is of a certain length
+				len: [7, 100]  
+			}
+		}
+	}, {
+// hook enables us to normalize data or SANITIZING INPUT (do something with it, here put into lower case) before validating, to remove risk of duplicate accounts being generated because user inputing capitals but for same account
+		hooks: {
+			beforeValidate: function(user, options) {
+				if (typeof user.email === 'string') {
+					user.email = user.email.toLowerCase();
+				}
 			}
 		}
 	});
 };
-
-// add user.js for validations + updated db.js to read this file
