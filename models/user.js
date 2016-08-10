@@ -4,7 +4,7 @@ var bcrypt = require('bcrypt');
 var _ = require('underscore'); 
 
 module.exports = function(sequelize, DataTypes) {
-	return sequelize.define('user', {
+	var user = sequelize.define('user', { // put whole define method into a var user, so we can access var user throughout
 		email: {
 			type: DataTypes.STRING, 
 			allowNull: false, 
@@ -42,13 +42,39 @@ module.exports = function(sequelize, DataTypes) {
 					user.email = user.email.toLowerCase();
 				}
 			}
-	},
+		},
+		// refactored code from server.js, included authenticate method below as a classMethod (can now use this method multiple times from multiple places)
+		classMethods: {
+			authenticate: function (body) {  // add body parameter
+				return new Promise(function(resolve, reject) {  // this is how we tell a caller of authenticate what went right/wrong
+					if (typeof body.email !== 'string' || typeof body.password !== 'string') {
+						return reject(); // returns 401 as a result of POST/user/login method in server.js
+					}
+
+					user.findOne({ // db removed, can access var user, as have put everything into var user
+						where: {
+							email: body.email
+						}
+					}).then(function(user) {
+						if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
+							return reject(); // returns 401 as a result of POST/user/login method in server.js
+						}
+
+						resolve(user);
+					}, function (e) {
+						reject(); // returns 401 as a result of POST/user/login method in server.js
+					});
+				});
+			}
+		},
 		instanceMethods: {
-			toPublicJSON: function () {
+			toPublicJSON: function() {
 				var json = this.toJSON();
 				return _.pick(json, 'id', 'email', 'createdAt', 'updatedAt');  
 			}
 		}
 	});
+
+	return user;
 };
 
