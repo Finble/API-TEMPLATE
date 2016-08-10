@@ -44,7 +44,7 @@ module.exports = function(sequelize, DataTypes) {
 				}
 			}
 	},
-	// to disguise the password value
+	// to only return fields we want (check in Postman)
 		instanceMethods: {
 			toPublicJSON: function () {
 				var json = this.toJSON();

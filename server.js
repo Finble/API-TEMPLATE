@@ -1,7 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
-var db = require('./db.js'); // add in so that db can be accessed
+var db = require('./db.js'); 
+var bcrypt = require('bcrypt');  // add in to run compareSync (bcrypt already installed)
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -19,10 +20,8 @@ app.get('/', function(req, res) {
 // GET/todos + query + filters, ADDED DB
 
 app.get('/todos', function(req, res) {
-    var query = req.query; // change name from queryParams
+    var query = req.query; 
     var where = {};
-
-    // string needs to be completed
 
     if (query.hasOwnProperty('completed') && query.completed === 'true') {
         where.completed = true;    
@@ -152,19 +151,18 @@ app.post('/users/login', function (req, res) {
             email: body.email
         }
     }).then(function(user) {
-        if (!user) {
-            return res.status(401).send(); // 401 = authentication possible but failed, route exists but data input failed
+        if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) { // compareSync compares password entered to password set
+            return res.status(401).send(); 
         }
-        res.json(user.toJSON());
+        res.json(user.toPublicJSON());  // changed to toPublicJSON from toJSON to return fields we want to expose only vs all JSON fields
     }).then(function (e) {
         res.status(500).send();
     });
 });
 
-
 // SET UP SERVER INSIDE CALL TO SYNC DB
 
-db.sequelize.sync().then(function() { // remove {force: true} when not needing to update fields/rebuild DB tables
+db.sequelize.sync().then(function() { 
     app.listen(PORT, function() {
         console.log('Express listening on port ' + PORT + '!');
     });
