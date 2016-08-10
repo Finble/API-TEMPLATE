@@ -2,7 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js'); 
-var bcrypt = require('bcrypt');  // add in to run compareSync (bcrypt already installed)
+var bcrypt = require('bcrypt');  
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -17,7 +17,7 @@ app.get('/', function(req, res) {
     res.send('Todo API Root');
 });
 
-// GET/todos + query + filters, ADDED DB
+// GET/todos (+ query + filters)
 
 app.get('/todos', function(req, res) {
     var query = req.query; 
@@ -42,35 +42,35 @@ app.get('/todos', function(req, res) {
     })
 });
 
-// GET/todos/:id, ADDED DB (amended from API call to sequelize)
+// GET/todos/:id
 
 app.get('/todos/:id', function(req, res) {
     var todoId = parseInt(req.params.id, 10);
 
     db.todo.findById(todoId).then(function(todo) {
-        if (!!todo) { // !! taking a value that is NOT a Boolean and turning it into its truthy or falsey
+        if (!!todo) { 
             res.json(todo.toJSON());
         } else {
             res.status(404).send();
         }
     },  function(e) {
-        res.status(500).send(); // 500 something went wrong server end
+        res.status(500).send(); 
     });
 });
 
-// POST/todos, ADDED DB (amended from API call to sequelize)
+// POST/todos
 
 app.post('/todos', function(req, res) {
     var body = _.pick(req.body, 'description', 'completed');
     
     db.todo.create(body).then(function(todo) {
-        res.json(todo.toJSON()); // todo object in sequelize needs to be JSONed again!
+        res.json(todo.toJSON()); 
     },  function(e) {
         res.status(400).json(e);
     });
 });
 
-// DELETE/todos/:id, ADDED DB (amended from API call to sequelize)
+// DELETE/todos/:id
 
 app.delete('/todos/:id', function(req, res) {
     var todoId = parseInt(req.params.id, 10);
@@ -85,20 +85,18 @@ app.delete('/todos/:id', function(req, res) {
                 error: "No todo with id"
             });
         } else {
-            res.status(204).send();  // 204 everything went well + nothing to send back (vs 200 everything went well + sending a response back)
+            res.status(204).send();  
         }
     },  function(){
         res.status(500).send();
     });
 });
 
-// UPDATE/PUT/todos/:id, ADDED DB (amended from API call to sequelize)
+// UPDATE/PUT/todos/:id
 
 app.put('/todos/:id', function(req, res) {
     var todoId = parseInt(req.params.id, 10);
     var body = _.pick(req.body, 'description', 'completed');
-
-    // VALIDATION TO BE HANDLED IN MODELS/TODO.JS, SO CAN BE REMOVED FROM HERE
 
     var attributes = {};
 
@@ -131,7 +129,7 @@ app.post('/users', function (req, res) {
     var body = _.pick(req.body, 'email', 'password');  
     
     db.user.create(body).then(function(user) {  
-        res.json(user.toPublicJSON());  // added public so that hidden fields are not returned
+        res.json(user.toPublicJSON());  
     },  function(e) {
         res.status(400).json(e); 
     });
@@ -151,16 +149,16 @@ app.post('/users/login', function (req, res) {
             email: body.email
         }
     }).then(function(user) {
-        if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) { // compareSync compares password entered to password set
+        if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) { 
             return res.status(401).send(); 
         }
-        res.json(user.toPublicJSON());  // changed to toPublicJSON from toJSON to return fields we want to expose only vs all JSON fields
+        res.json(user.toPublicJSON());  
     }).then(function (e) {
         res.status(500).send();
     });
 });
 
-// SET UP SERVER INSIDE CALL TO SYNC DB
+// SET UP SERVER INSIDE CALL TO SYNC DB (use {force:true} whenever fields added/updated so DB will be dropped + rebuilt, otherwise do not include)
 
 db.sequelize.sync().then(function() { 
     app.listen(PORT, function() {
