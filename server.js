@@ -126,7 +126,7 @@ app.put('/todos/:id', function(req, res) {
     });
 });
 
-// SET UP POST FOR USERS (a new table in DB)
+// POST/users
 
 app.post('/users', function (req, res) {
     var body = _.pick(req.body, 'email', 'password');  
@@ -137,6 +137,30 @@ app.post('/users', function (req, res) {
         res.status(400).json(e); 
     });
 });
+
+// POST/users/login
+
+app.post('/users/login', function (req, res) {
+    var body = _.pick(req.body, 'email', 'password');  
+    
+    if (typeof body.email !== 'string' || typeof body.password !== 'string') {
+        return res.status(400).send();
+    }
+
+    db.user.findOne({
+        where: {
+            email: body.email
+        }
+    }).then(function(user) {
+        if (!user) {
+            return res.status(401).send(); // 401 = authentication possible but failed, route exists but data input failed
+        }
+        res.json(user.toJSON());
+    }).then(function (e) {
+        res.status(500).send();
+    });
+});
+
 
 // SET UP SERVER INSIDE CALL TO SYNC DB
 
