@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js'); 
 var bcrypt = require('bcrypt');  
+var middleware = require('./middleware.js')(db); // passes in db
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -18,8 +19,9 @@ app.get('/', function(req, res) {
 });
 
 // GET/todos (+ query + filters)
+// REGULAR ROUTE HANDLER:
 
-app.get('/todos', function(req, res) {
+app.get('/todos', middleware.requireAuthentication, function(req, res) { // include requireAuthentication method name, as you need to be authenticated to get all users
     var query = req.query; 
     var where = {};
 
@@ -44,7 +46,8 @@ app.get('/todos', function(req, res) {
 
 // GET/todos/:id
 
-app.get('/todos/:id', function(req, res) {
+app.get('/todos/:id', middleware.requireAuthentication, function(req, res) { // include requireAuthentication method name, as you need to be authenticated to get an individual users
+    var query = req.query; 
     var todoId = parseInt(req.params.id, 10);
 
     db.todo.findById(todoId).then(function(todo) {
@@ -58,9 +61,10 @@ app.get('/todos/:id', function(req, res) {
     });
 });
 
-// POST/todos
+// POST/todos (CREATE USER)
 
-app.post('/todos', function(req, res) {
+app.post('/todos', middleware.requireAuthentication, function(req, res) { // include requireAuthentication method name, as you need to be authenticated to create a user
+    var query = req.query; 
     var body = _.pick(req.body, 'description', 'completed');
     
     db.todo.create(body).then(function(todo) {
@@ -72,7 +76,8 @@ app.post('/todos', function(req, res) {
 
 // DELETE/todos/:id
 
-app.delete('/todos/:id', function(req, res) {
+app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) { // include requireAuthentication method name, as you need to be authenticated to delete a user
+    var query = req.query; 
     var todoId = parseInt(req.params.id, 10);
 
     db.todo.destroy({
@@ -94,7 +99,8 @@ app.delete('/todos/:id', function(req, res) {
 
 // UPDATE/PUT/todos/:id
 
-app.put('/todos/:id', function(req, res) {
+app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {  // include requireAuthentication method name, as you need to be authenticated to update a user
+    var query = req.query; 
     var todoId = parseInt(req.params.id, 10);
     var body = _.pick(req.body, 'description', 'completed');
 
@@ -123,9 +129,9 @@ app.put('/todos/:id', function(req, res) {
     });
 });
 
-// POST/users
+// POST/users  (USER SIGN UP)
 
-app.post('/users', function (req, res) {
+app.post('/users', function (req, res) {  // do not include requireAuthentication method as this is set once user sets up login (below)
     var body = _.pick(req.body, 'email', 'password');  
     
     db.user.create(body).then(function(user) {  
@@ -135,16 +141,16 @@ app.post('/users', function (req, res) {
     });
 });
 
-// POST/users/login
+// POST/users/login  (USER LOGIN)
 
-app.post('/users/login', function (req, res) {
+app.post('/users/login', function (req, res) {  // do not include requireAuthentication method, as this generates the Auth token in first place
     var body = _.pick(req.body, 'email', 'password');  
 
     db.user.authenticate(body).then(function(user) {
         var token = user.generateToken('authentication');
-        
+
         if (token) {
-            res.header('Auth', token).json(user.toPublicJSON);
+            res.header('Auth', token).json(user.toPublicJSON());
         } else {
             res.status(401).send();
         }
