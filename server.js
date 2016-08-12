@@ -23,7 +23,9 @@ app.get('/', function(req, res) {
 
 app.get('/todos', middleware.requireAuthentication, function(req, res) { 
     var query = req.query; 
-    var where = {};
+    var where = {
+        userId: req.user.get('id')  // sets associations, so you only get todo items for a specific user id
+    };
 
     if (query.hasOwnProperty('completed') && query.completed === 'true') {
         where.completed = true;    
@@ -49,7 +51,12 @@ app.get('/todos', middleware.requireAuthentication, function(req, res) {
 app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {  
     var todoId = parseInt(req.params.id, 10);
 
-    db.todo.findById(todoId).then(function(todo) {
+    db.todo.findOne({  // updated to include associations, so can only get individual id for specific user id
+        where: {
+            id: todoId,
+            userId: req.user.get('id')
+        }
+    }).then(function(todo) {
         if (!!todo) { 
             res.json(todo.toJSON());
         } else {
@@ -66,11 +73,10 @@ app.post('/todos', middleware.requireAuthentication, function(req, res) {
     var body = _.pick(req.body, 'description', 'completed');
     
     db.todo.create(body).then(function(todo) {
-        // res.json(todo.toJSON()); 
-        req.user.addTodo(todo).then(function(){ // creates association
-            return todo.reload(); // reload todo, as its different to one in DB
+        req.user.addTodo(todo).then(function(){ 
+            return todo.reload();  
         }).then(function(todo) {
-            res.json(todo.toJSON());  // return new todo item
+            res.json(todo.toJSON());  
         });
     },  function(e) {
         res.status(400).json(e);
@@ -84,7 +90,8 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 
     db.todo.destroy({
         where: {
-            id: todoId
+            id: todoId,
+            userId: req.user.get('id')  // added to implement associations, now only destroy todos for a specific user id (+ have access to delete because you were one that created todo item)
         }
     }).then(function(rowsDeleted){
         if (rowsDeleted === 0) {
@@ -104,7 +111,6 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {   
     var todoId = parseInt(req.params.id, 10);
     var body = _.pick(req.body, 'description', 'completed');
-
     var attributes = {};
 
     if (body.hasOwnProperty('completed')) {
@@ -115,7 +121,12 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
         attributes.description = body.description;
     } 
 
-    db.todo.findById(todoId).then(function(todo) {
+    db.todo.findOne({  // added to implement associations, now only updates a todo item if you are the user id of that todo item
+        where: {
+            id: todoId, 
+            userId: req.user.get('id')
+        }
+    }).then(function(todo) {
         if (todo) {
             todo.update(attributes).then(function (todo) {
             res.json(todo.toJSON());
