@@ -73,8 +73,8 @@ module.exports = function(sequelize, DataTypes) {
 				return new Promise(function(resolve, reject) {
 					try {
 						var decodedJWT = jwt.verify(token, 'qwerty098'); // what you call to verify a token has not been modified, takes token + secret key
-						var bytes = cryptojs.AES.decrypt(decodedJWT.token, 'abc123!@');
-						var tokenData = JSON.parse(bytes.toString(cryptojs.enc.Utf8)); // JSON.parse takes JSON and turns into JS object
+						var bytes = cryptojs.AES.decrypt(decodedJWT.token, 'abc123!@');  // decrypt token
+						var tokenData = JSON.parse(bytes.toString(cryptojs.enc.Utf8)); // JSON.parse takes JSON and turns into JS object, so can then findById below:
 
 						user.findById(tokenData.id).then(function(user) {
 							if (user) {
