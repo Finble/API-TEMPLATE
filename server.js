@@ -24,7 +24,7 @@ app.get('/', function(req, res) {
 app.get('/todos', middleware.requireAuthentication, function(req, res) { 
     var query = req.query; 
     var where = {
-        userId: req.user.get('id')  // sets associations, so you only get todo items for a specific user id
+        userId: req.user.get('id')  
     };
 
     if (query.hasOwnProperty('completed') && query.completed === 'true') {
@@ -51,7 +51,7 @@ app.get('/todos', middleware.requireAuthentication, function(req, res) {
 app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {  
     var todoId = parseInt(req.params.id, 10);
 
-    db.todo.findOne({  // updated to include associations, so can only get individual id for specific user id
+    db.todo.findOne({  
         where: {
             id: todoId,
             userId: req.user.get('id')
@@ -91,7 +91,7 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
     db.todo.destroy({
         where: {
             id: todoId,
-            userId: req.user.get('id')  // added to implement associations, now only destroy todos for a specific user id (+ have access to delete because you were one that created todo item)
+            userId: req.user.get('id')  
         }
     }).then(function(rowsDeleted){
         if (rowsDeleted === 0) {
@@ -106,7 +106,7 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
     });
 });
 
-// UPDATE/PUT/todos/:id
+// PUT/todos/:id (UPDATE)
 
 app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {   
     var todoId = parseInt(req.params.id, 10);
@@ -121,10 +121,10 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
         attributes.description = body.description;
     } 
 
-    db.todo.findOne({  // added to implement associations, now only updates a todo item if you are the user id of that todo item
+    db.todo.findOne({  
         where: {
             id: todoId, 
-            userId: req.user.get('id')
+            userId: req.user.get('id')  
         }
     }).then(function(todo) {
         if (todo) {
