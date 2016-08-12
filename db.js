@@ -16,14 +16,11 @@ if (env === 'production') {
 var db = {};
 
 db.todo = sequelize.import(__dirname + '/models/todo.js');  
-db.user = sequelize.import(__dirname + '/models/user.js'); // to ensure user.js file is read
+db.user = sequelize.import(__dirname + '/models/user.js'); 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-// add associations, todo API = 1:many
-// ensure force:true in server.js as new associations means we need to drop and rebuild db to capture changes
-
-db.todo.belongsTo(db.user); // a todo belongs to one user
-db.user.hasMany(db.todo); // a user has many todos
+db.todo.belongsTo(db.user); 
+db.user.hasMany(db.todo); 
 
 module.exports = db; 

@@ -1,20 +1,16 @@
-// this is ONE table in DB, need to set up routes (in server.js) for this table, ie 'todo'
-
 module.exports = function(sequelize, DataTypes) {
 	return sequelize.define('todo', {
 		description: {
-			type: DataTypes.STRING, // changed from Sequelize.STRING
+			type: DataTypes.STRING, 
 			allowNull: false, 
 			validate: {
 				len: [1, 250]
 			}
 		},
 		completed: {
-			type: DataTypes.BOOLEAN, // changed from Sequelize.BOOLEAN
+			type: DataTypes.BOOLEAN, 
 			allowNull: false, 
 			defaultValue: false 
 		}
 	});
 };
-
-// validation all extracted to the above model, so don't need to include in server.js code

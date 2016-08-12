@@ -1,9 +1,7 @@
-// this is ANOTHER table in DB, need to set up routes (in server.js) for this table, ie 'users'
-
 var bcrypt = require('bcrypt');  
 var _ = require('underscore'); 
 var cryptojs = require('crypto-js');
-var jwt = require('jsonwebtoken'); // jwt = jason web token
+var jwt = require('jsonwebtoken'); 
 
 module.exports = function(sequelize, DataTypes) {
 	var user = sequelize.define('user', {
@@ -32,8 +30,6 @@ module.exports = function(sequelize, DataTypes) {
 				var salt = bcrypt.genSaltSync(10); 
 				var hashedPassword = bcrypt.hashSync(value, salt); 
 
-				// this = current instance
-
 				this.setDataValue('password', value);
 				this.setDataValue('salt', salt);
 				this.setDataValue('password_hash', hashedPassword);
@@ -47,7 +43,7 @@ module.exports = function(sequelize, DataTypes) {
 				}
 			}
 		},
-		classMethods: {  // class methods = methods for a new user object
+		classMethods: {  
 			authenticate: function (body) {  
 				return new Promise(function(resolve, reject) {  
 					if (typeof body.email !== 'string' || typeof body.password !== 'string') {
@@ -69,12 +65,12 @@ module.exports = function(sequelize, DataTypes) {
 					});
 				});
 			},
-			findByToken: function(token) { // need to decode token then decrypt data
+			findByToken: function(token) { 
 				return new Promise(function(resolve, reject) {
 					try {
-						var decodedJWT = jwt.verify(token, 'qwerty098'); // what you call to verify a token has not been modified, takes token + secret key
-						var bytes = cryptojs.AES.decrypt(decodedJWT.token, 'abc123!@');  // decrypt token
-						var tokenData = JSON.parse(bytes.toString(cryptojs.enc.Utf8)); // JSON.parse takes JSON and turns into JS object, so can then findById below:
+						var decodedJWT = jwt.verify(token, 'qwerty098'); 
+						var bytes = cryptojs.AES.decrypt(decodedJWT.token, 'abc123!@');  
+						var tokenData = JSON.parse(bytes.toString(cryptojs.enc.Utf8)); 
 
 						user.findById(tokenData.id).then(function(user) {
 							if (user) {
@@ -91,7 +87,7 @@ module.exports = function(sequelize, DataTypes) {
 				});
 			}
 		},
-		instanceMethods: {  // instance methods = methods for existing user objects
+		instanceMethods: {  
 			toPublicJSON: function() {
 				var json = this.toJSON();
 				return _.pick(json, 'id', 'email', 'createdAt', 'updatedAt');  
@@ -101,13 +97,13 @@ module.exports = function(sequelize, DataTypes) {
 					return undefined;
 				}
 				try {
-					var stringData = JSON.stringify({id: this.get('id'), type: type});  // this = current instance
+					var stringData = JSON.stringify({id: this.get('id'), type: type});  
 					var encryptedData = cryptojs.AES.encrypt(stringData, 'abc123!@').toString();
 					var token = jwt.sign({
 						token: encryptedData
-					}, 'qwerty098'); // secret key
+					}, 'qwerty098'); 
 					return token;
-				} catch (e) { // no valid token generated
+				} catch (e) {
 					console.error(e);
 					return undefined; 
 				}
